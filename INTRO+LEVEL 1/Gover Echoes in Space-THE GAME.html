@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#050814" />
+<title>Gover Echoes in Space</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="stage">
+  <canvas id="game" width="640" height="360" aria-label="Gover Echoes in Space game screen"></canvas>
+
+  <div id="ui">
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+      <div id="hearts" aria-label="Lives"></div>
+      <div id="gear" aria-label="Equipment collected">
+        <div class="gearChip" data-gear="suit"><i></i><span>SUIT</span></div>
+        <div class="gearChip" data-gear="oxygen"><i></i><span>O2</span></div>
+        <div class="gearChip" data-gear="ship"><i></i><span>SHIP</span></div>
+      </div>
+      <div id="partTag">LEVEL 1 // PART 1</div>
+      <div id="objective">COLLECT THE SPACE SUIT + OXYGEN TANK</div>
+    </div>
+
+    <!-- Global controls -->
+    <button id="menuBtn" class="chunky red" aria-label="Open menu">MENU</button>
+    <button id="skipBtn" class="chunky green hidden" aria-label="Skip cutscene">SKIP</button>
+
+    <!-- Cinematic dialogue -->
+    <div id="dialogue" class="hidden" aria-live="polite">
+      <div id="speaker"></div>
+      <div id="dText"></div>
+      <div id="dNext" aria-hidden="true">▼</div>
+    </div>
+
+    <div id="hint" class="hidden"></div>
+    <div id="toast" class="hidden"></div>
+
+    <!-- Quiz -->
+    <section id="quiz" class="panel hidden" aria-label="InSight mission quiz">
+      <div class="panelTop">
+        <span class="panelKicker">INSIGHT // MISSION DATABASE</span>
+        <span id="quizProgress">DATA CHECK 1/4</span>
+      </div>
+      <h2 id="quizQ"></h2>
+      <div id="quizOpts" class="quizOpts"></div>
+      <div id="quizFeedback" class="quizFeedback"></div>
+      <div class="panelFoot">CHOOSE A—D &nbsp;·&nbsp; CORRECT ANSWER UNLOCKS EQUIPMENT</div>
+    </section>
+
+    <!-- Menu -->
+    <div id="pauseShade" class="hidden"></div>
+    <section id="menuPanel" class="panel hidden" aria-label="Game menu">
+      <div class="menuHead">
+        <span class="panelKicker">GOVER OS v1.987</span>
+        <span class="blinkDot">●</span>
+      </div>
+      <h2 class="menuTitle">PAUSED</h2>
+      <button id="resumeBtn" class="chunky resume wide">RESUME</button>
+      <div class="sliderRow">
+        <span class="sliderLabel">SOUND</span>
+        <input type="range" id="sfxSlider" min="0" max="1" step="0.01" value="0.8" aria-label="Sound effects volume" />
+        <span class="sliderVal" id="sfxVal">80%</span>
+      </div>
+      <div class="sliderRow">
+        <span class="sliderLabel">MUSIC</span>
+        <input type="range" id="musicSlider" min="0" max="1" step="0.01" value="0.45" aria-label="Music volume" />
+        <span class="sliderVal" id="musicVal">45%</span>
+      </div>
+      <button id="startOverBtn" class="chunky startover wide">START OVER</button>
+      <div class="menuHelp">
+        <div><b>A / D</b> MOVE &nbsp; <b>SPACE</b> JUMP</div>
+        <div><b>E / ↑</b> INTERACT · GRAB ROPE &nbsp; <b>F</b> THROW ROCK</div>
+        <div><b>ESC</b> PAUSE &nbsp; <b>CLICK</b> ADVANCE TEXT</div>
+      </div>
+    </section>
+
+    <!-- Level intro card -->
+    <div id="levelCard" class="hidden">
+      <div class="lcPart">PART 1</div>
+      <div class="lcTitle">SPACE LAB // EQUIPMENT BAY</div>
+      <div class="lcObjective">Find the <b>SPACE SUIT</b> and <b>OXYGEN TANK</b>. Answer the InSight questions to unlock them. Press <b>F</b> to throw rocks at monsters.</div>
+      <div class="lcStart">CLICK OR PRESS SPACE TO BEGIN</div>
+    </div>
+
+    <!-- Game over -->
+    <section id="gameOver" class="panel hidden" aria-label="Game over">
+      <div class="panelKicker redText">CRITICAL FAILURE</div>
+      <h2 class="bigTitle">GAME OVER</h2>
+      <p class="panelCopy">Your hearts are gone. Mission progress has been reset to Level 1.</p>
+      <button id="retryBtn" class="chunky resume wide">RETRY LEVEL 1</button>
+      <button id="goMenuBtn" class="chunky plain wide">OPEN MENU</button>
+    </section>
+
+    <!-- Completion -->
+    <section id="complete" class="panel hidden" aria-label="Mission complete">
+      <div class="panelKicker">TRANSMISSION COMPLETE</div>
+      <h2 class="bigTitle gold">MISSION COMPLETE</h2>
+      <p class="panelCopy">Gover is proud of you, Leo.<br/>The echoes of Mars will never be silent again.</p>
+      <div id="statBlock" class="statBlock"></div>
+      <button id="againBtn" class="chunky resume wide">PLAY AGAIN</button>
+      <button id="completeMenuBtn" class="chunky plain wide">MAIN MENU</button>
+    </section>
+
+    <!-- Title play -->
+    <button id="playBtn" class="chunky play hidden" aria-label="Play game">▶ PLAY</button>
+    <div id="titleHint" class="hidden">A/D MOVE &nbsp;·&nbsp; SPACE JUMP &nbsp;·&nbsp; E INTERACT &nbsp;·&nbsp; F THROW ROCK</div>
+
+    <!-- Touch controls -->
+    <div id="touch" class="hidden">
+      <div class="touchLeft">
+        <button data-key="left" class="touchBtn">◀</button>
+        <button data-key="right" class="touchBtn">▶</button>
+      </div>
+      <div class="touchRight">
+        <button data-key="interact" class="touchBtn small">E</button>
+        <button data-key="rock" class="touchBtn small">ROCK</button>
+        <button data-key="jump" class="touchBtn jump">JUMP</button>
+      </div>
+    </div>
+
+    <!-- Boot / loading -->
+    <div id="boot">
+      <div class="bootInner">
+        <div class="bootLogo">GOVER<span>OS</span></div>
+        <div class="bootLine">PLEASE INSERT MEMORY TAPE</div>
+        <div class="bootBar"><i id="bootFill"></i></div>
+        <div class="bootPercent" id="bootPercent">0%</div>
+        <div class="bootFoot">ECHOES IN SPACE // 1987</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="scanlines"></div>
+  <div id="vignette"></div>
+</div>
+
+<audio id="aud_falling" src="INTRO+LEVEL%201/Falling.mp3" preload="auto"></audio>
+<audio id="aud_bump" src="INTRO+LEVEL%201/Bump.mp3" preload="auto"></audio>
+<audio id="aud_click" src="INTRO+LEVEL%201/Click.mp3" preload="auto"></audio>
+<audio id="aud_dvdplayer" src="INTRO+LEVEL%201/DVD%20player.mp3" preload="auto"></audio>
+<audio id="aud_grabbing" src="INTRO+LEVEL%201/Grabbing%20DVD.mp3" preload="auto"></audio>
+<audio id="aud_landing" src="INTRO+LEVEL%201/Landing.mp3" preload="auto"></audio>
+<audio id="aud_meow" src="INTRO+LEVEL%201/Meow.mp3" preload="auto"></audio>
+<audio id="aud_nosignal" src="INTRO+LEVEL%201/No%20signal.mp3" preload="auto"></audio>
+<audio id="aud_rocket" src="INTRO+LEVEL%201/Rocket%20Launch.mp3" preload="auto"></audio>
+<audio id="aud_catexp" src="assets/cat-explosion-short.wav" preload="auto"></audio>
+<audio id="aud_music" src="INTRO+LEVEL%201/space-silence.mp3" preload="auto" loop></audio>
+
+<script src="game.js"></script>
+</body>
+</html>
